@@ -51,7 +51,7 @@ grep 'context 262144 tokens' strata-server.out
 
 # Smoke test. Low reasoning effort - high burns the whole output budget on thinking.
 curl -s http://127.0.0.1:8080/v1/chat/completions -H 'Content-Type: application/json' \
-  -d '{"model":"qwen3.8-flash-next-iq2_xs","messages":[{"role":"user","content":"Say OK"}],"max_tokens":16,"reasoning_effort":"low"}'
+  -d '{"model":"qwen3.8-flash-next-iq2_xs","messages":[{"role":"user","content":"Say OK"}],"max_tokens":64,"reasoning_effort":"low"}'
 
 echo
 echo "Done when /health above says \"loaded\": true with \"max_context\": 262144 and the smoke test returns content."
