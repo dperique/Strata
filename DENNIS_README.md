@@ -13,6 +13,9 @@ My changes are on the public fork branch:
 dennis_kpc2_strata
 ```
 
+The known-good checkout before moving to the fork was commit `296b59d2f73c8f04a805df29c2fa97655adace78`,
+tagged `v0.1.44.1`. That is the baseline to return to if the newer upstream build causes trouble.
+
 The branch contains `MY-SETUP.md`, `start.sh`, `status.sh`, and `stop.sh`.
 
 ## Sync this branch with upstream
@@ -38,6 +41,21 @@ git branch -vv
 
 Keep `main` for upstream reference; it tracks `upstream/main`. Do new work on
 `dennis_kpc2_strata` or another topic branch, not directly on `main`.
+
+## Rebuild after upstream changes
+
+The running server and the compiled CUDA engine do not change just because Git changes. After
+rebasing onto upstream, stop the old server, rebuild the existing CUDA build, then start again:
+
+```sh
+./stop.sh
+cmake --build build --target strata -j8
+./start.sh
+./status.sh
+```
+
+Keep `strata-iq2_xs.json` and its settings. Do not run `setup.sh` with only one custom option;
+setup can reset options that were not repeated.
 
 ## What is not committed
 
