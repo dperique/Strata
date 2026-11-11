@@ -49,13 +49,34 @@ rebasing onto upstream, stop the old server, rebuild the existing CUDA build, th
 
 ```sh
 ./stop.sh
-cmake --build build --target strata -j8
+.venv/bin/cmake --build build --target strata -j8
+cp build/strata engine/strata
 ./start.sh
 ./status.sh
 ```
 
+On this machine, system `cmake` is not on `PATH`; the checkout's `.venv/bin/cmake` works.
+The existing `build/` directory is the configured CUDA/Ninja build for the RTX 4090
+(`CMAKE_CUDA_ARCHITECTURES=89`). Reusing it avoids changing the working model setup. The build
+places the new executable at `build/strata`, while `strata-iq2_xs.json` starts `engine/strata`,
+so the copy step is required. Check that both files have the same SHA-256 after copying.
+
 Keep `strata-iq2_xs.json` and its settings. Do not run `setup.sh` with only one custom option;
 setup can reset options that were not repeated.
+
+Run `./stop.sh` as its own command. Do not append a `pgrep -f` check whose search text contains
+`server.py --engine` or `engine/strata` to the same shell command: `pgrep` can see the wrapper
+command itself and report or signal that extra PID. If the stop command reports exit 143, check
+`curl -s http://127.0.0.1:8080/health` separately before retrying; the real server may already be
+stopped.
+
+The startup smoke test needs enough output room for reasoning. The checked-in `start.sh` uses
+`max_tokens: 64`; with 16 tokens the model can spend the whole budget thinking and return no final
+content even though the server is healthy. Confirm with `./status.sh` and, if needed, a direct
+request with `max_tokens` 64 or more.
+
+The current known-good rebuilt engine from upstream base `6c642df7` has SHA-256
+`d26e4049011fc0962a0d3ba2eded17ae35ae6b7befbdd359ac4ba976627aecb8`.
 
 ## What is not committed
 
